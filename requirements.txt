@@ -1,3 +1,4 @@
 mcp[cli]
 psycopg[binary]
 faker
+pytest
