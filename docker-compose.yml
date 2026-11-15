@@ -3,6 +3,7 @@ services:
     image: pgvector/pgvector:pg16
     container_name: microfinance-db
     environment:
+      # Identifiants de DEV uniquement (base locale, donnees fictives). Ne jamais reutiliser.
       POSTGRES_USER: microfinance
       POSTGRES_PASSWORD: microfinance
       POSTGRES_DB: microfinance
