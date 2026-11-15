@@ -1,0 +1,2 @@
+# Dependances de developpement (captures d'ecran) : pip install -r requirements-dev.txt
+pillow
