@@ -28,7 +28,7 @@ MCP_USER_ID=3 python mcp_server/server.py
 | Outil | agent_terrain | responsable | auditeur |
 |---|---|---|---|
 | `rechercher_client(nom)` | clients ayant un de ses prets | tout | tout |
-| `statut_pret(loan_id)` | ses prets (sinon « Pret introuvable. ») | tout | tout |
+| `statut_pret(loan_id)` | ses prets (sinon « Prêt introuvable. ») | tout | tout |
 | `prets_en_retard()` | ses prets | tout | tout |
 | `journal_audit(limite)` | refuse | refuse | oui |
 
@@ -64,46 +64,48 @@ Pour tester un autre role, changer `MCP_USER_ID` (un serveur = une identite).
 
 ## Exemple
 
-Memes questions, deux roles, via le protocole MCP (sortie reelle de `python scripts/demo_roles.py`, donnees fictives generees par `data/generate.py`, capturee le 2026-11-15) :
+Mêmes questions, deux rôles, via le protocole MCP (sortie réelle de `python scripts/demo_roles.py`, données fictives générées par `data/generate.py`, capturée le 2026-11-15) :
 
 ```text
-DEMO : memes questions, deux roles (via le protocole MCP)
+DÉMO : mêmes questions, deux rôles (via le protocole MCP)
 
 Question 1 : prets_en_retard()
 agent_terrain (id 1)                                           | responsable (id 3)
 ---------------------------------------------------------------+---------------------------------------------------------------
-16 pret(s) en retard :                                         | 33 pret(s) en retard :
-#122 Yao Akakpo - defaut, 301 110 XOF impaye, 369 j de retard  | #122 Yao Akakpo - defaut, 301 110 XOF impaye, 369 j de retard
-#133 Adjoa Salifou - defaut, 1 729 200 XOF impaye, 339 j de    | #133 Adjoa Salifou - defaut, 1 729 200 XOF impaye, 339 j de
+16 prêt(s) en retard :                                         | 33 prêt(s) en retard :
+#122 Yao Akakpo - défaut, 301 110 XOF impayé, 369 j de retard  | #122 Yao Akakpo - défaut, 301 110 XOF impayé, 369 j de retard
+#133 Adjoa Salifou - défaut, 1 729 200 XOF impayé, 339 j de    | #133 Adjoa Salifou - défaut, 1 729 200 XOF impayé, 339 j de
   retard                                                       |   retard
-#149 Kwami Lamboni - defaut, 257 760 XOF impaye, 317 j de      | #149 Kwami Lamboni - defaut, 257 760 XOF impaye, 317 j de
+#149 Kwami Lamboni - défaut, 257 760 XOF impayé, 317 j de      | #149 Kwami Lamboni - défaut, 257 760 XOF impayé, 317 j de
   retard                                                       |   retard
-#155 Ayité Kassegne - defaut, 1 182 200 XOF impaye, 315 j de   | #155 Ayité Kassegne - defaut, 1 182 200 XOF impaye, 315 j de
+#155 Ayité Kassegne - défaut, 1 182 200 XOF impayé, 315 j de   | #155 Ayité Kassegne - défaut, 1 182 200 XOF impayé, 315 j de
   retard                                                       |   retard
-#106 Safiatou Salifou - defaut, 314 860 XOF impaye, 225 j de   | #65 Delali Noumonvi - defaut, 1 194 440 XOF impaye, 264 j de
+#106 Safiatou Salifou - défaut, 314 860 XOF impayé, 225 j de   | #65 Delali Noumonvi - défaut, 1 194 440 XOF impayé, 264 j de
   retard                                                       |   retard
-#193 Ornella Agbodjan - defaut, 366 170 XOF impaye, 210 j de   | #83 Alidou Ayivi - defaut, 829 880 XOF impaye, 228 j de retard
-  retard                                                       | #106 Safiatou Salifou - defaut, 314 860 XOF impaye, 225 j de
-#165 Dzifa Quashie - defaut, 1 106 320 XOF impaye, 114 j de    |   retard
-  retard                                                       | #193 Ornella Agbodjan - defaut, 366 170 XOF impaye, 210 j de
-#32 Kokoé Salifou - defaut, 492 200 XOF impaye, 112 j de       |   retard
-  retard                                                       | #192 Fatoumata Lamboni - defaut, 2 965 000 XOF impaye, 148 j
-#2 Ornella Amegah - en_retard, 250 060 XOF impaye, 42 j de     |   de retard
-  retard                                                       | #126 Moussa Awesso - defaut, 835 450 XOF impaye, 145 j de
-#29 Yao Sossou - en_retard, 197 180 XOF impaye, 39 j de retard |   retard
+#193 Ornella Agbodjan - défaut, 366 170 XOF impayé, 210 j de   | #83 Alidou Ayivi - défaut, 829 880 XOF impayé, 228 j de retard
+  retard                                                       | #106 Safiatou Salifou - défaut, 314 860 XOF impayé, 225 j de
+#165 Dzifa Quashie - défaut, 1 106 320 XOF impayé, 114 j de    |   retard
+  retard                                                       | #193 Ornella Agbodjan - défaut, 366 170 XOF impayé, 210 j de
+#32 Kokoé Salifou - défaut, 492 200 XOF impayé, 112 j de       |   retard
+  retard                                                       | #192 Fatoumata Lamboni - défaut, 2 965 000 XOF impayé, 148 j
+#2 Ornella Amegah - en retard, 250 060 XOF impayé, 42 j de     |   de retard
+  retard                                                       | #126 Moussa Awesso - défaut, 835 450 XOF impayé, 145 j de
+#29 Yao Sossou - en retard, 197 180 XOF impayé, 39 j de retard |   retard
 ... et 6 autre(s).                                             | ... et 23 autre(s).
 
-Question 2 : statut_pret(7)  (pret d'un autre agent)
+Question 2 : statut_pret(7)  (prêt d'un autre agent)
 agent_terrain (id 1)                                           | responsable (id 3)
 ---------------------------------------------------------------+---------------------------------------------------------------
-Pret introuvable.                                              | Pret #7 (Bouraima Noumonvi) : 750 000 XOF, en_retard.
-                                                               |   Echeances : 2 payee(s), 7 restante(s). Prochain paiement du
+Prêt introuvable.                                              | Prêt #7 (Bouraima Noumonvi) : 750 000 XOF, en retard.
+                                                               |   Échéances : 2 payée(s), 7 restante(s). Prochain paiement dû
                                                                |   : 96 930 XOF le 2026-10-15.
 ```
 
-L'agent terrain ne voit que son portefeuille et recoit « Pret introuvable. » pour le pret d'un autre agent ; le responsable voit tout. Le script ecrit dans `audit_log` de la base de dev.
+L'agent terrain ne voit que son portefeuille et reçoit « Prêt introuvable. » pour le prêt d'un autre agent ; le responsable voit tout. Le script écrit dans `audit_log` de la base de dev.
 
-![Memes questions, deux roles : 16 prets en retard pour l'agent terrain contre 33 pour le responsable, et « Pret introuvable. » contre le detail du pret](docs/images/demo-roles.png)
+Le script accepte deux options d'affichage : `--largeur N` fixe la largeur de chaque colonne, et `--max-lignes N` abrège chaque réponse à N lignes avec « [...] » (les réponses viennent toujours du serveur). Les captures ci-dessous ont été faites avec `python scripts/demo_roles.py --largeur 32 --max-lignes 4` ; `python scripts/make_screenshots.py` les régénère à partir des vraies sorties.
+
+![Mêmes questions, deux rôles : 16 prêts en retard pour l'agent terrain contre 33 pour le responsable, et « Prêt introuvable. » contre le détail du prêt](docs/images/demo-roles.png)
 
 Le journal d'audit garde la trace de chaque appel, refus compris :
 
