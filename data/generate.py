@@ -14,17 +14,38 @@ import os
 import random
 from datetime import date, timedelta
 
-from faker import Faker
-
 DEFAULT_URL = "postgresql://microfinance:microfinance@localhost:5433/microfinance"
 
 VILLES = ["Lomé", "Kpalimé", "Atakpamé", "Sokodé", "Kara", "Dapaong", "Tsévié", "Aného"]
 ACTIVITES = ["commerce", "agriculture", "couture", "transport", "restauration", "artisanat"]
+# Noms fictifs, ecrits en dur (aucune donnee reelle). Origines melangees : ewe, mina, kabiye,
+# tem, plus des prenoms usuels au Togo. Aucun nom de personnalite publique volontairement.
+PRENOMS_F = [
+    "Afi", "Ama", "Akossiwa", "Adjoa", "Abla", "Yawa", "Dzifa", "Mawuena", "Kafui", "Eyram",
+    "Delali", "Akouavi", "Ablavi", "Essi", "Kokoé", "Esther", "Grâce", "Prisca", "Judith",
+    "Nadège", "Chantal", "Edwige", "Ornella", "Estelle", "Honorine", "Rahamatou", "Safiatou",
+    "Rabiatou", "Zeinabou", "Fatoumata",
+]
+PRENOMS_M = [
+    "Kodjo", "Komla", "Kokou", "Koffi", "Kossi", "Yao", "Mawuli", "Selom", "Elom", "Senam",
+    "Edem", "Mawuko", "Komi", "Yawovi", "Ayité", "Kwami", "Essohanam", "Essozimna", "Essowè",
+    "Issifou", "Moussa", "Yacoubou", "Idrissou", "Bouraima", "Alidou", "Abdoul", "Ibrahim",
+    "Emmanuel", "Patrice", "Désiré",
+]
+NOMS = [
+    "Agbodjan", "Akakpo", "Amegah", "Amouzou", "Adjakly", "Agbeko", "Atsou", "Attiogbe",
+    "Hounkpati", "Kpodar", "Mensah", "Noumonvi", "Sossou", "Tomety", "Koudjo", "Ayivi", "Folly",
+    "Djossou", "Agbadji", "Aguigah", "Zogbo", "Ayena", "Kuevi", "Lawson", "Quashie", "Pyalo",
+    "Lamboni", "Tchagnao", "Kassegne", "Awesso", "Bidamon", "Kolani", "Mouzou", "Walla",
+    "Alassani", "Salifou", "Ouro-Gnaou", "Tchakpélé", "Abalo", "Kondo",
+]
+
+# Personnel de l'agence : roles et ids inchanges (1-2 agents terrain, 3 responsable, 4 auditeur).
 USERS = [
-    ("Agent Terrain 1", "agent_terrain"),
-    ("Agent Terrain 2", "agent_terrain"),
-    ("Responsable Agence", "responsable"),
-    ("Auditeur Interne", "auditeur"),
+    ("Kossi Amegah", "agent_terrain"),
+    ("Afi Tomety", "agent_terrain"),
+    ("Adjoa Lawson", "responsable"),
+    ("Issifou Kassegne", "auditeur"),
 ]
 
 # Notes d'agent fictives, courtes, selon la situation du pret.
@@ -62,14 +83,20 @@ def add_months(d: date, months: int) -> date:
     return date(d.year + total // 12, total % 12 + 1, min(d.day, 28))
 
 
-def make_clients(fake: Faker, rng: random.Random, n: int, today: date):
+def nom_fictif(rng_noms: random.Random) -> str:
+    """Prenom + nom togolais fictifs ; le prenom suit le genre tire (pas de champ genre en base)."""
+    prenoms = PRENOMS_F if rng_noms.random() < 0.5 else PRENOMS_M
+    return f"{rng_noms.choice(prenoms)} {rng_noms.choice(NOMS)}"
+
+
+def make_clients(rng_noms: random.Random, rng: random.Random, n: int, today: date):
     rows = []
     for _ in range(n):
         telephone = "+228 9%d %02d %02d %02d" % (
             rng.randint(0, 9), rng.randint(0, 99), rng.randint(0, 99), rng.randint(0, 99),
         )
         inscription = today - timedelta(days=rng.randint(60, 900))
-        rows.append((fake.name(), telephone, rng.choice(VILLES), rng.choice(ACTIVITES), inscription))
+        rows.append((nom_fictif(rng_noms), telephone, rng.choice(VILLES), rng.choice(ACTIVITES), inscription))
     return rows
 
 
@@ -167,10 +194,11 @@ def atypical_cases(today: date):
 
 def generate(seed: int, n_clients: int, today: date):
     rng = random.Random(seed)
-    fake = Faker("fr_FR")
-    Faker.seed(seed)
+    # Flux separe, derive de la meme graine : les noms ne decalent pas les autres tirages
+    # (villes, activites, montants...), qui restent identiques pour un seed donne.
+    rng_noms = random.Random(f"noms-{seed}")
 
-    clients = make_clients(fake, rng, n_clients, today)
+    clients = make_clients(rng_noms, rng, n_clients, today)
     agent_ids = [i + 1 for i, (_, role) in enumerate(USERS) if role == "agent_terrain"]
 
     loans, repayments = [], []
@@ -187,7 +215,7 @@ def generate(seed: int, n_clients: int, today: date):
     # Cas atypiques : un client dedie chacun, ajoutes apres les clients aleatoires.
     atypiques = []
     for libelle, loan_specs in atypical_cases(today):
-        client = make_clients(fake, rng, 1, today)[0]
+        client = make_clients(rng_noms, rng, 1, today)[0]
         clients.append(client)
         client_id = len(clients)
         # Inscription anterieure a tous les prets du scenario.
