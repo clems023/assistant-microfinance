@@ -82,6 +82,12 @@ def test_journal_audit_refuse_hors_auditeur(as_user, audit, utilisateur):
     assert audit.last()[3] == "refuse"
 
 
+def test_message_de_refus_generique(as_user):
+    """Le refus ne nomme aucun role : il reste vrai si la matrice PERMISSIONS change."""
+    as_user(AGENT_1)
+    assert server.journal_audit(5) == "Acces refuse : role non autorise pour cet outil."
+
+
 def test_journal_audit_pour_auditeur(as_user, audit):
     as_user(AGENT_1)
     server.statut_pret(2)  # une tentative refusee a retrouver dans le journal
@@ -102,7 +108,7 @@ APPELS = [
     ("ok", lambda: server.prets_en_retard()),
     ("ok", lambda: server.statut_pret(99999)),
     ("refuse", lambda: server.statut_pret(2)),  # hors portefeuille (agent 1)
-    ("refuse", lambda: server.journal_audit(5)),  # reserve a l'auditeur
+    ("refuse", lambda: server.journal_audit(5)),  # role non autorise
     ("erreur", lambda: server.statut_pret("abc")),  # erreur SQL
     ("erreur", lambda: server.rechercher_client("a")),  # nom trop court
 ]

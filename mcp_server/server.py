@@ -75,7 +75,7 @@ def executer(outil: str, arguments: dict, impl):
             if acteur is None:
                 status, texte = "refuse", "Acces refuse : utilisateur non identifie."
             elif role not in PERMISSIONS.get(outil, set()):
-                status, texte = "refuse", "Acces refuse : outil reserve a l'auditeur."
+                status, texte = "refuse", "Acces refuse : role non autorise pour cet outil."
             else:
                 status, texte, *reste = impl(conn, user_id, role)
                 resume = reste[0] if reste else None
