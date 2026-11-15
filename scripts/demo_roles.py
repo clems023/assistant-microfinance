@@ -4,9 +4,13 @@ Les appels passent par le protocole MCP (serveur lance en stdio, client du SDK `
 de dev. Prerequis : docker compose up -d, puis python data/generate.py.
 
 Usage : python scripts/demo_roles.py
+        python scripts/demo_roles.py --largeur 38 --max-lignes 4   # affichage compact (captures)
+
+--max-lignes ne fait qu'abreger l'affichage (marqueur « [...] ») : les reponses viennent du serveur.
 Donnees 100 % fictives. Chaque appel est journalise dans audit_log de la base de dev.
 """
 
+import argparse
 import asyncio
 import os
 import sys
@@ -24,7 +28,7 @@ URL = os.environ.get("DATABASE_URL", DEFAULT_URL)
 
 AGENT = ("agent_terrain (id 1)", "1")
 RESPONSABLE = ("responsable (id 3)", "3")
-LARGEUR = 62
+LARGEUR = 62  # largeur de chaque colonne (modifiable avec --largeur)
 
 
 def pret_d_un_autre_agent() -> int:
@@ -55,35 +59,49 @@ async def poser_questions(user_id: str, questions):
             ]
 
 
-def colonne(texte: str) -> list[str]:
+def colonne(texte: str, largeur: int, max_lignes: int | None) -> list[str]:
+    brutes = texte.splitlines() or [""]
+    if max_lignes and len(brutes) > max_lignes:
+        brutes = brutes[:max_lignes] + ["[...]"]
     lignes = []
-    for ligne in texte.splitlines() or [""]:
-        lignes += textwrap.wrap(ligne, LARGEUR, subsequent_indent="  ") or [""]
+    for ligne in brutes:
+        lignes += textwrap.wrap(ligne, largeur, subsequent_indent="  ") or [""]
     return lignes
 
 
-def cote_a_cote(titre: str, gauche: str, droite: str):
+def cote_a_cote(titre: str, gauche: str, droite: str, largeur: int, max_lignes: int | None):
     print(f"\n{titre}")
-    print(f"{AGENT[0]:<{LARGEUR}} | {RESPONSABLE[0]}")
-    print("-" * LARGEUR + "-+-" + "-" * LARGEUR)
-    for g, d in zip_longest(colonne(gauche), colonne(droite), fillvalue=""):
-        print(f"{g:<{LARGEUR}} | {d}")
+    print(f"{AGENT[0]:<{largeur}} | {RESPONSABLE[0]}")
+    print("-" * largeur + "-+-" + "-" * largeur)
+    colonnes = zip_longest(
+        colonne(gauche, largeur, max_lignes), colonne(droite, largeur, max_lignes), fillvalue=""
+    )
+    for g, d in colonnes:
+        print(f"{g:<{largeur}} | {d}")
 
 
-async def main():
+async def main(largeur: int, max_lignes: int | None):
     loan_id = pret_d_un_autre_agent()
     questions = [("prets_en_retard", {}), ("statut_pret", {"loan_id": loan_id})]
     reponses_agent = await poser_questions(AGENT[1], questions)
     reponses_resp = await poser_questions(RESPONSABLE[1], questions)
 
     print("DEMO : memes questions, deux roles (via le protocole MCP)")
-    cote_a_cote("Question 1 : prets_en_retard()", reponses_agent[0], reponses_resp[0])
+    cote_a_cote("Question 1 : prets_en_retard()", reponses_agent[0], reponses_resp[0],
+                largeur, max_lignes)
     cote_a_cote(
         f"Question 2 : statut_pret({loan_id})  (pret d'un autre agent)",
         reponses_agent[1],
         reponses_resp[1],
+        largeur,
+        max_lignes,
     )
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--largeur", type=int, default=LARGEUR, help="largeur de chaque colonne")
+    parser.add_argument("--max-lignes", type=int, default=None,
+                        help="n'afficher que les N premieres lignes de chaque reponse")
+    args = parser.parse_args()
+    asyncio.run(main(args.largeur, args.max_lignes))
