@@ -73,37 +73,48 @@ Question 1 : prets_en_retard()
 agent_terrain (id 1)                                           | responsable (id 3)
 ---------------------------------------------------------------+---------------------------------------------------------------
 16 pret(s) en retard :                                         | 33 pret(s) en retard :
-#122 Julie-Alex Nicolas - defaut, 301 110 XOF impaye, 369 j de | #122 Julie-Alex Nicolas - defaut, 301 110 XOF impaye, 369 j de
+#122 Yao Akakpo - defaut, 301 110 XOF impaye, 369 j de retard  | #122 Yao Akakpo - defaut, 301 110 XOF impaye, 369 j de retard
+#133 Adjoa Salifou - defaut, 1 729 200 XOF impaye, 339 j de    | #133 Adjoa Salifou - defaut, 1 729 200 XOF impaye, 339 j de
   retard                                                       |   retard
-#133 Madeleine-Océane Lévy - defaut, 1 729 200 XOF impaye, 339 | #133 Madeleine-Océane Lévy - defaut, 1 729 200 XOF impaye, 339
-  j de retard                                                  |   j de retard
-#149 Susan de Pascal - defaut, 257 760 XOF impaye, 317 j de    | #149 Susan de Pascal - defaut, 257 760 XOF impaye, 317 j de
+#149 Kwami Lamboni - defaut, 257 760 XOF impaye, 317 j de      | #149 Kwami Lamboni - defaut, 257 760 XOF impaye, 317 j de
   retard                                                       |   retard
-#155 Sophie Leroux-Bernier - defaut, 1 182 200 XOF impaye, 315 | #155 Sophie Leroux-Bernier - defaut, 1 182 200 XOF impaye, 315
-  j de retard                                                  |   j de retard
-#106 Denis Morvan - defaut, 314 860 XOF impaye, 225 j de       | #65 Jeanne Sanchez - defaut, 1 194 440 XOF impaye, 264 j de
+#155 Ayité Kassegne - defaut, 1 182 200 XOF impaye, 315 j de   | #155 Ayité Kassegne - defaut, 1 182 200 XOF impaye, 315 j de
   retard                                                       |   retard
-#193 Jérôme Rossi - defaut, 366 170 XOF impaye, 210 j de       | #83 Alice-Audrey Humbert - defaut, 829 880 XOF impaye, 228 j
-  retard                                                       |   de retard
-#165 Lucy Chrétien - defaut, 1 106 320 XOF impaye, 114 j de    | #106 Denis Morvan - defaut, 314 860 XOF impaye, 225 j de
+#106 Safiatou Salifou - defaut, 314 860 XOF impaye, 225 j de   | #65 Delali Noumonvi - defaut, 1 194 440 XOF impaye, 264 j de
   retard                                                       |   retard
-#32 Zacharie Regnier - defaut, 492 200 XOF impaye, 112 j de    | #193 Jérôme Rossi - defaut, 366 170 XOF impaye, 210 j de
-  retard                                                       |   retard
-#2 Gérard-Frédéric Joly - en_retard, 250 060 XOF impaye, 42 j  | #192 Zacharie Brunel de Moreno - defaut, 2 965 000 XOF impaye,
-  de retard                                                    |   148 j de retard
-#29 Anouk Collin - en_retard, 197 180 XOF impaye, 39 j de      | #126 Adélaïde Dijoux - defaut, 835 450 XOF impaye, 145 j de
-  retard                                                       |   retard
+#193 Ornella Agbodjan - defaut, 366 170 XOF impaye, 210 j de   | #83 Alidou Ayivi - defaut, 829 880 XOF impaye, 228 j de retard
+  retard                                                       | #106 Safiatou Salifou - defaut, 314 860 XOF impaye, 225 j de
+#165 Dzifa Quashie - defaut, 1 106 320 XOF impaye, 114 j de    |   retard
+  retard                                                       | #193 Ornella Agbodjan - defaut, 366 170 XOF impaye, 210 j de
+#32 Kokoé Salifou - defaut, 492 200 XOF impaye, 112 j de       |   retard
+  retard                                                       | #192 Fatoumata Lamboni - defaut, 2 965 000 XOF impaye, 148 j
+#2 Ornella Amegah - en_retard, 250 060 XOF impaye, 42 j de     |   de retard
+  retard                                                       | #126 Moussa Awesso - defaut, 835 450 XOF impaye, 145 j de
+#29 Yao Sossou - en_retard, 197 180 XOF impaye, 39 j de retard |   retard
 ... et 6 autre(s).                                             | ... et 23 autre(s).
 
 Question 2 : statut_pret(7)  (pret d'un autre agent)
 agent_terrain (id 1)                                           | responsable (id 3)
 ---------------------------------------------------------------+---------------------------------------------------------------
-Pret introuvable.                                              | Pret #7 (Julie Bertrand) : 750 000 XOF, en_retard. Echeances :
-                                                               |   2 payee(s), 7 restante(s). Prochain paiement du : 96 930 XOF
-                                                               |   le 2026-10-15.
+Pret introuvable.                                              | Pret #7 (Bouraima Noumonvi) : 750 000 XOF, en_retard.
+                                                               |   Echeances : 2 payee(s), 7 restante(s). Prochain paiement du
+                                                               |   : 96 930 XOF le 2026-10-15.
 ```
 
 L'agent terrain ne voit que son portefeuille et recoit « Pret introuvable. » pour le pret d'un autre agent ; le responsable voit tout. Le script ecrit dans `audit_log` de la base de dev.
+
+![Memes questions, deux roles : 16 prets en retard pour l'agent terrain contre 33 pour le responsable, et « Pret introuvable. » contre le detail du pret](docs/images/demo-roles.png)
+
+Le journal d'audit garde la trace de chaque appel, refus compris :
+
+![Derniers appels dans audit_log : le refus de statut_pret pour l'agent terrain apparait avec le statut refuse](docs/images/audit-log.png)
+
+Les images sont generees a partir des vraies sorties des commandes (rien n'est retape) :
+
+```bash
+pip install -r requirements-dev.txt
+python scripts/make_screenshots.py
+```
 
 ## Tests
 
@@ -126,4 +137,5 @@ La base Docker doit tourner (port 5433). Les tests creent une base separee `micr
 - `mcp_server/server.py` : serveur MCP (rechercher_client, statut_pret, prets_en_retard, journal_audit)
 - `tests/` : tests pytest (permissions par role, bout en bout via MCP)
 - `scripts/demo_roles.py` : demo des roles via le protocole MCP
+- `scripts/make_screenshots.py` : regenere les captures de `docs/images/`
 - `evals/` : jeu de questions-tests (a venir)
