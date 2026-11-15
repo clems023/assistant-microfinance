@@ -53,6 +53,6 @@ def test_statut_pret_depend_du_role_via_mcp():
     # Le pret 2 appartient a l'agent 2.
     vu_par_agent_1 = executer(AGENT_1, pret_2)
     vu_par_responsable = executer(RESPONSABLE, pret_2)
-    assert vu_par_agent_1 == "Pret introuvable."
-    assert vu_par_responsable.startswith("Pret #2")
+    assert vu_par_agent_1 == "Prêt introuvable."
+    assert vu_par_responsable.startswith("Prêt #2")
     assert vu_par_agent_1 != vu_par_responsable

@@ -1,13 +1,13 @@
-"""Demo : memes questions posees a l'assistant en tant qu'agent_terrain puis responsable.
+"""Démo : mêmes questions posées à l'assistant en tant qu'agent_terrain puis responsable.
 
-Les appels passent par le protocole MCP (serveur lance en stdio, client du SDK `mcp`) sur la base
-de dev. Prerequis : docker compose up -d, puis python data/generate.py.
+Les appels passent par le protocole MCP (serveur lancé en stdio, client du SDK `mcp`) sur la base
+de dev. Prérequis : docker compose up -d, puis python data/generate.py.
 
 Usage : python scripts/demo_roles.py
         python scripts/demo_roles.py --largeur 38 --max-lignes 4   # affichage compact (captures)
 
---max-lignes ne fait qu'abreger l'affichage (marqueur « [...] ») : les reponses viennent du serveur.
-Donnees 100 % fictives. Chaque appel est journalise dans audit_log de la base de dev.
+--max-lignes ne fait qu'abréger l'affichage (marqueur « [...] ») : les réponses viennent du serveur.
+Données 100 % fictives. Chaque appel est journalisé dans audit_log de la base de dev.
 """
 
 import argparse
@@ -32,19 +32,19 @@ LARGEUR = 62  # largeur de chaque colonne (modifiable avec --largeur)
 
 
 def pret_d_un_autre_agent() -> int:
-    """Un pret en retard appartenant a l'agent 2 (donc hors portefeuille de l'agent 1)."""
+    """Un prêt en retard appartenant à l'agent 2 (donc hors portefeuille de l'agent 1)."""
     with psycopg.connect(URL) as conn:
         ligne = conn.execute(
             "SELECT id FROM loans WHERE agent_id = 2 AND statut IN ('en_retard', 'defaut')"
             " ORDER BY id LIMIT 1"
         ).fetchone()
     if ligne is None:
-        sys.exit("Aucun pret en retard pour l'agent 2 : lancer d'abord python data/generate.py")
+        sys.exit("Aucun prêt en retard pour l'agent 2 : lancer d'abord python data/generate.py")
     return ligne[0]
 
 
 async def poser_questions(user_id: str, questions):
-    """Demarre le serveur avec MCP_USER_ID=user_id et retourne la reponse a chaque question."""
+    """Démarre le serveur avec MCP_USER_ID=user_id et retourne la réponse à chaque question."""
     params = StdioServerParameters(
         command=sys.executable,
         args=[str(SERVER)],
@@ -86,11 +86,11 @@ async def main(largeur: int, max_lignes: int | None):
     reponses_agent = await poser_questions(AGENT[1], questions)
     reponses_resp = await poser_questions(RESPONSABLE[1], questions)
 
-    print("DEMO : memes questions, deux roles (via le protocole MCP)")
+    print("DÉMO : mêmes questions, deux rôles (via le protocole MCP)")
     cote_a_cote("Question 1 : prets_en_retard()", reponses_agent[0], reponses_resp[0],
                 largeur, max_lignes)
     cote_a_cote(
-        f"Question 2 : statut_pret({loan_id})  (pret d'un autre agent)",
+        f"Question 2 : statut_pret({loan_id})  (prêt d'un autre agent)",
         reponses_agent[1],
         reponses_resp[1],
         largeur,
@@ -102,6 +102,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--largeur", type=int, default=LARGEUR, help="largeur de chaque colonne")
     parser.add_argument("--max-lignes", type=int, default=None,
-                        help="n'afficher que les N premieres lignes de chaque reponse")
+                        help="n'afficher que les N premières lignes de chaque réponse")
     args = parser.parse_args()
     asyncio.run(main(args.largeur, args.max_lignes))

@@ -51,28 +51,28 @@ USERS = [
 # Notes d'agent fictives, courtes, selon la situation du pret.
 NOTES = {
     "solde": [
-        "Pret rembourse sans incident.",
+        "Prêt remboursé sans incident.",
         "Client ponctuel, bon candidat pour un renouvellement.",
-        "Solde en avance sur le calendrier, relation de confiance.",
-        "Remboursement complet, activite en croissance.",
+        "Soldé en avance sur le calendrier, relation de confiance.",
+        "Remboursement complet, activité en croissance.",
     ],
     "en_cours": [
-        "Visite de suivi faite, activite stable.",
-        "Paie regulierement, rien a signaler.",
-        "Client satisfait, demande un second pret plus tard.",
-        "Stock renouvele recemment, bonne dynamique de vente.",
+        "Visite de suivi faite, activité stable.",
+        "Paie régulièrement, rien à signaler.",
+        "Client satisfait, demande un second prêt plus tard.",
+        "Stock renouvelé récemment, bonne dynamique de vente.",
     ],
     "en_retard": [
-        "Retard signale, client joint par telephone, promet de regulariser.",
-        "Baisse de revenus saisonniere, a surveiller de pres.",
-        "Absent lors de la derniere visite, relance prevue.",
-        "Paiements decales depuis plusieurs semaines.",
+        "Retard signalé, client joint par téléphone, promet de régulariser.",
+        "Baisse de revenus saisonnière, à surveiller de près.",
+        "Absent lors de la dernière visite, relance prévue.",
+        "Paiements décalés depuis plusieurs semaines.",
     ],
     "defaut": [
         "Plus de paiement depuis des mois, client injoignable.",
-        "Activite arretee, dossier a transmettre au responsable.",
-        "Garant contacte sans resultat, defaut probable.",
-        "Difficultes familiales invoquees, aucun remboursement recu.",
+        "Activité arrêtée, dossier à transmettre au responsable.",
+        "Garant contacté sans résultat, défaut probable.",
+        "Difficultés familiales invoquées, aucun remboursement reçu.",
     ],
 }
 
@@ -165,11 +165,11 @@ def atypical_cases(today: date):
     return [
         ("3 prets en cours pour un meme client", [
             dict(montant=300_000, duree=6, octroi=ago(70), profil="bon",
-                 notes="Troisieme pret ouvert en quelques semaines, cumul a surveiller."),
+                 notes="Troisième prêt ouvert en quelques semaines, cumul à surveiller."),
             dict(montant=450_000, duree=9, octroi=ago(45), profil="bon",
-                 notes="Deuxieme pret accorde avant la fin du premier."),
+                 notes="Deuxième prêt accordé avant la fin du premier."),
             dict(montant=250_000, duree=12, octroi=ago(20), profil="bon",
-                 notes="Nouvelle demande acceptee, endettement total eleve."),
+                 notes="Nouvelle demande acceptée, endettement total élevé."),
         ]),
         ("montant tres eleve (12 000 000 XOF)", [
             dict(montant=12_000_000, duree=12, octroi=ago(120), profil="bon",
@@ -177,17 +177,17 @@ def atypical_cases(today: date):
         ]),
         ("retards repetes sur presque toutes les echeances", [
             dict(montant=900_000, duree=12, octroi=add_months(ago(20), -10), profil="retard",
-                 notes="Paie systematiquement en retard, relances hebdomadaires."),
+                 notes="Paie systématiquement en retard, relances hebdomadaires."),
         ]),
         ("defaut sur un gros montant", [
             dict(montant=6_000_000, duree=12, octroi=ago(240), profil="defaut",
-                 notes="Defaut apres deux echeances, garantie a verifier."),
+                 notes="Défaut après deux échéances, garantie à vérifier."),
         ]),
         ("ancien defaut puis nouveau pret", [
             dict(montant=400_000, duree=9, octroi=ago(300), profil="defaut",
-                 notes="Defaut non regularise, dossier ouvert."),
+                 notes="Défaut non régularisé, dossier ouvert."),
             dict(montant=1_200_000, duree=12, octroi=ago(15), profil="bon",
-                 notes="Nouveau pret accorde malgre un defaut ancien, a revoir."),
+                 notes="Nouveau prêt accordé malgré un défaut ancien, à revoir."),
         ]),
     ]
 
