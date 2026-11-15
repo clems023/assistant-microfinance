@@ -59,6 +59,24 @@ def test_agent_voit_ses_prets(as_user):
         sans_fuite(s)
 
 
+# 3 bis. Symetrie : l'agent 2 est lui aussi cloisonne
+def test_agent_2_ne_voit_que_son_portefeuille(as_user):
+    as_user(AGENT_2)
+    retards = server.prets_en_retard()
+    assert "1 pret(s) en retard" in retards
+    assert "#2 " in retards and "#1 " not in retards and "#3 " not in retards
+
+    # Clients de l'agent 1 introuvables, client de l'agent 2 trouve.
+    assert server.rechercher_client("Awa") == "Aucun client trouve."
+    assert server.rechercher_client("Esi") == "Aucun client trouve."
+    assert "Kofi Beta" in server.rechercher_client("Kofi")
+
+    # Prets de l'agent 1 : meme message que pour un pret inexistant.
+    assert server.statut_pret(1) == INTROUVABLE
+    assert server.statut_pret(3) == INTROUVABLE
+    assert "Pret #2" in server.statut_pret(2)
+
+
 # 4. responsable (et auditeur en lecture) voient tout
 @pytest.mark.parametrize("utilisateur", [RESPONSABLE, AUDITEUR])
 def test_acces_complet_en_lecture(as_user, utilisateur):
