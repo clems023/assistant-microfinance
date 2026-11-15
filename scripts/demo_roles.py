@@ -1,0 +1,89 @@
+"""Demo : memes questions posees a l'assistant en tant qu'agent_terrain puis responsable.
+
+Les appels passent par le protocole MCP (serveur lance en stdio, client du SDK `mcp`) sur la base
+de dev. Prerequis : docker compose up -d, puis python data/generate.py.
+
+Usage : python scripts/demo_roles.py
+Donnees 100 % fictives. Chaque appel est journalise dans audit_log de la base de dev.
+"""
+
+import asyncio
+import os
+import sys
+import textwrap
+from itertools import zip_longest
+from pathlib import Path
+
+import psycopg
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
+
+SERVER = Path(__file__).resolve().parent.parent / "mcp_server" / "server.py"
+DEFAULT_URL = "postgresql://microfinance:microfinance@localhost:5433/microfinance"
+URL = os.environ.get("DATABASE_URL", DEFAULT_URL)
+
+AGENT = ("agent_terrain (id 1)", "1")
+RESPONSABLE = ("responsable (id 3)", "3")
+LARGEUR = 62
+
+
+def pret_d_un_autre_agent() -> int:
+    """Un pret en retard appartenant a l'agent 2 (donc hors portefeuille de l'agent 1)."""
+    with psycopg.connect(URL) as conn:
+        ligne = conn.execute(
+            "SELECT id FROM loans WHERE agent_id = 2 AND statut IN ('en_retard', 'defaut')"
+            " ORDER BY id LIMIT 1"
+        ).fetchone()
+    if ligne is None:
+        sys.exit("Aucun pret en retard pour l'agent 2 : lancer d'abord python data/generate.py")
+    return ligne[0]
+
+
+async def poser_questions(user_id: str, questions):
+    """Demarre le serveur avec MCP_USER_ID=user_id et retourne la reponse a chaque question."""
+    params = StdioServerParameters(
+        command=sys.executable,
+        args=[str(SERVER)],
+        env={**os.environ, "MCP_USER_ID": user_id, "DATABASE_URL": URL},
+    )
+    async with stdio_client(params) as (lecture, ecriture):
+        async with ClientSession(lecture, ecriture) as session:
+            await session.initialize()
+            return [
+                (await session.call_tool(outil, args)).content[0].text
+                for outil, args in questions
+            ]
+
+
+def colonne(texte: str) -> list[str]:
+    lignes = []
+    for ligne in texte.splitlines() or [""]:
+        lignes += textwrap.wrap(ligne, LARGEUR, subsequent_indent="  ") or [""]
+    return lignes
+
+
+def cote_a_cote(titre: str, gauche: str, droite: str):
+    print(f"\n{titre}")
+    print(f"{AGENT[0]:<{LARGEUR}} | {RESPONSABLE[0]}")
+    print("-" * LARGEUR + "-+-" + "-" * LARGEUR)
+    for g, d in zip_longest(colonne(gauche), colonne(droite), fillvalue=""):
+        print(f"{g:<{LARGEUR}} | {d}")
+
+
+async def main():
+    loan_id = pret_d_un_autre_agent()
+    questions = [("prets_en_retard", {}), ("statut_pret", {"loan_id": loan_id})]
+    reponses_agent = await poser_questions(AGENT[1], questions)
+    reponses_resp = await poser_questions(RESPONSABLE[1], questions)
+
+    print("DEMO : memes questions, deux roles (via le protocole MCP)")
+    cote_a_cote("Question 1 : prets_en_retard()", reponses_agent[0], reponses_resp[0])
+    cote_a_cote(
+        f"Question 2 : statut_pret({loan_id})  (pret d'un autre agent)",
+        reponses_agent[1],
+        reponses_resp[1],
+    )
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
