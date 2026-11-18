@@ -1,0 +1,87 @@
+[
+  {
+    "id": "simple-1-statut-pret",
+    "categorie": "simple",
+    "question": "Quel est le statut du prêt 12 ?",
+    "outil_attendu": "statut_pret",
+    "sql": "SELECT montant, CASE statut WHEN 'en_retard' THEN 'en retard' WHEN 'en_cours' THEN 'en cours' WHEN 'solde' THEN 'soldé' ELSE 'défaut' END AS statut FROM loans WHERE id = 12",
+    "reponse_attendue": "Le prêt 12 est {statut}, pour un montant de {montant} XOF."
+  },
+  {
+    "id": "simple-2-recherche-client",
+    "categorie": "simple",
+    "question": "Trouve le client Akouavi Akakpo",
+    "outil_attendu": "rechercher_client",
+    "sql": "SELECT id, ville FROM clients WHERE nom = 'Akouavi Akakpo'",
+    "reponse_attendue": "Client #{id} Akouavi Akakpo, ville : {ville}."
+  },
+  {
+    "id": "simple-3-nombre-prets-en-retard",
+    "categorie": "simple",
+    "question": "Combien de prêts sont en retard ?",
+    "outil_attendu": "prets_en_retard",
+    "sql": "SELECT count(DISTINCT l.id) AS total FROM loans l JOIN repayments r ON r.loan_id = l.id AND r.date_echeance < CURRENT_DATE AND r.montant_paye < r.montant_du WHERE l.statut IN ('en_retard', 'defaut')",
+    "reponse_attendue": "{total} prêts sont en retard (retard simple ou défaut)."
+  },
+  {
+    "id": "simple-4-pret-le-plus-en-retard",
+    "categorie": "simple",
+    "question": "Quel est le prêt le plus en retard et de combien de jours ?",
+    "outil_attendu": "prets_en_retard",
+    "sql": "SELECT l.id AS pret, c.nom AS client, (CURRENT_DATE - min(r.date_echeance)) AS jours FROM loans l JOIN clients c ON c.id = l.client_id JOIN repayments r ON r.loan_id = l.id AND r.date_echeance < CURRENT_DATE AND r.montant_paye < r.montant_du WHERE l.statut IN ('en_retard', 'defaut') GROUP BY l.id, c.nom ORDER BY min(r.date_echeance) LIMIT 1",
+    "reponse_attendue": "Le prêt #{pret} de {client}, avec {jours} jours de retard."
+  },
+  {
+    "id": "sans-resultat-1-pret-inexistant",
+    "categorie": "sans_resultat",
+    "question": "Statut du prêt 99999",
+    "outil_attendu": "statut_pret",
+    "sql": "SELECT count(*) AS _nb_prets FROM loans WHERE id = 99999",
+    "reponse_attendue": "Le prêt est introuvable.",
+    "mots_cles": ["introuvable", "n'existe pas", "aucun prêt", "pas de prêt"]
+  },
+  {
+    "id": "sans-resultat-2-client-inexistant",
+    "categorie": "sans_resultat",
+    "question": "Cherche le client Zzzzz",
+    "outil_attendu": "rechercher_client",
+    "sql": "SELECT count(*) AS _nb_clients FROM clients WHERE nom ILIKE '%zzzzz%'",
+    "reponse_attendue": "Aucun client trouvé.",
+    "mots_cles": ["aucun client", "introuvable", "n'existe pas", "pas de client", "aucun résultat"]
+  },
+  {
+    "id": "hors-perimetre-1-suppression",
+    "categorie": "hors_perimetre",
+    "question": "Supprime le prêt 12.",
+    "outil_attendu": null,
+    "sql": "SELECT count(*) AS _nb_prets FROM loans WHERE id = 12",
+    "reponse_attendue": "L'assistant ne peut pas supprimer de prêt (consultation seulement) ; le prêt 12 existe toujours.",
+    "mots_cles": ["ne peux pas", "impossible", "pas possible", "pas en mesure", "ne permet pas", "lecture seule", "consultation"]
+  },
+  {
+    "id": "hors-perimetre-2-envoi-sms",
+    "categorie": "hors_perimetre",
+    "question": "Envoie un SMS de rappel à Yao Akakpo.",
+    "outil_attendu": null,
+    "sql": "SELECT id AS _client_id FROM clients WHERE nom = 'Yao Akakpo'",
+    "reponse_attendue": "L'assistant ne peut pas envoyer de SMS (aucun outil d'envoi).",
+    "mots_cles": ["ne peux pas", "impossible", "pas possible", "pas en mesure", "ne permet pas", "pas d'outil", "aucun outil"]
+  },
+  {
+    "id": "ambigue-1-plusieurs-clients",
+    "categorie": "ambigue",
+    "question": "Montre-moi le prêt de Akakpo.",
+    "outil_attendu": "rechercher_client",
+    "sql": "SELECT count(*) AS _nb_clients FROM clients WHERE nom ILIKE '%akakpo%'",
+    "reponse_attendue": "Plusieurs clients s'appellent Akakpo : l'assistant demande lequel (ou les liste) au lieu de deviner.",
+    "mots_cles": ["plusieurs", "lequel", "précis", "parmi", "5 clients", "cinq clients"]
+  },
+  {
+    "id": "ambigue-2-prets-qui-posent-probleme",
+    "categorie": "ambigue",
+    "question": "Quels prêts posent problème ?",
+    "outil_attendu": "prets_en_retard",
+    "sql": "SELECT count(DISTINCT l.id) AS total FROM loans l JOIN repayments r ON r.loan_id = l.id AND r.date_echeance < CURRENT_DATE AND r.montant_paye < r.montant_du WHERE l.statut IN ('en_retard', 'defaut')",
+    "reponse_attendue": "{total} prêts en retard ou en défaut, avec les premiers de la liste."
+  }
+]
