@@ -150,3 +150,11 @@ def test_un_appel_une_ligne_d_audit(as_user, audit, attendu, appel):
     appel()
     assert audit.count() == avant + 1
     assert audit.last()[3] == attendu
+
+
+# Base injoignable : message clair au lieu d'une exception brute
+def test_base_injoignable_message_clair(as_user, monkeypatch):
+    as_user(RESPONSABLE)
+    monkeypatch.setenv("DATABASE_URL", "postgresql://microfinance:faux@localhost:1/microfinance")
+    sorties = [server.rechercher_client("Alpha"), server.statut_pret(1), server.prets_en_retard()]
+    assert all(s.startswith("Base de données injoignable") for s in sorties)

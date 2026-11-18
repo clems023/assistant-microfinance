@@ -18,6 +18,7 @@ Lancement : MCP_USER_ID=3 python mcp_server/server.py
 
 import json
 import os
+import sys
 from datetime import date
 
 import psycopg
@@ -75,7 +76,14 @@ def executer(outil: str, arguments: dict, impl):
     impl retourne (status, texte) ou (status, texte, resume_audit) : le resume d'audit peut etre
     plus precis que le texte renvoye au modele (ex. pret hors portefeuille).
     """
-    with connecter() as conn:
+    try:
+        conn = connecter()
+    except psycopg.Error as e:
+        # Pas de connexion : impossible de journaliser dans audit_log, donc on trace sur stderr
+        # (stdout est reserve au protocole MCP) et on renvoie un message clair au modele.
+        print(f"[mcp] base injoignable ({outil}) : {type(e).__name__}", file=sys.stderr)
+        return "Base de données injoignable, vérifiez DATABASE_URL (port 5433 par défaut)."
+    with conn:
         acteur = lire_acteur(conn)
         user_id, role = acteur if acteur else (None, "inconnu")
         resume = None
